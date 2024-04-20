@@ -11,6 +11,8 @@ urlpatterns = [
     path("", hv.home, name="home"),
     path("voice_recorder/", hv.voice_recorder, name="voice_recorder"),
     path("voice_listening/", hv.voice_listening, name="voice_listening"),
-    path("writing/", hv.writing, name="writing")
+    path('play_audio/<int:pk>/', hv.play_audio, name='play_audio'),
+    path("writing/", hv.writing, name="writing"),
+    path('send_text/', hv.send_text, name='send_text')
 
 ]

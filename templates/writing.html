@@ -44,7 +44,7 @@ https://templatemo.com/tm-590-topic-listing
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="index.html">Accueil</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Voice Recorder</li>
+                            <li class="breadcrumb-item active" aria-current="page">Text Writing</li>
                         </ol>
                     </nav>
 
@@ -55,28 +55,29 @@ https://templatemo.com/tm-590-topic-listing
         </div>
     </header>
 
-    <section class="section-padding">
-        <div class="container">
-            <div class="row justify-content-center">
-
-                <div class="col-lg-8 col-12">
-                    <div class="custom-block bg-white shadow-lg mb-5">
-                        <div class="d-flex align-items-center">
-                            <div class="mx-auto">
-                                <h5 class="mb-2">Ecrire du Texte</h5>
-                                <p class="mb-4">Entrez votre texte ci-dessous :</p>
-                                <div class="input-group">
-                                    <textarea class="form-control" id="user-text" rows="4" style="width: 100%;"></textarea>
-                                    <button class="btn btn-primary" id="send-text">Envoyer</button>
+   <section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-12">
+                <div class="custom-block bg-white shadow-lg mb-5">
+                    <div class="d-flex align-items-center">
+                        <div class="mx-auto">
+                            <h5 class="mb-2">Ecrire du Texte</h5>
+                            <p class="mb-4">Entrez votre texte ci-dessous :</p>
+                            <div class="input-group">
+                                <textarea class="form-control" id="user-text" rows="4" style="width: calc(100% - 100px);"></textarea>
+                                <div class="input-group-append" style="margin-left: 10px;">
+                                    <button class="btn btn-primary" id="send-text" style="background-color: #80d0c7;">Envoyer</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
 
 </main>
 
@@ -162,6 +163,46 @@ https://templatemo.com/tm-590-topic-listing
         <script src="{% static 'js/jquery.sticky.js' %}"></script>
         <script src="{% static 'js/click-scroll.js' %}"></script>
         <script src="{% static 'js/custom.js' %}"></script>
+    
+        <script>
+        $(document).ready(function(){
+    $('#send-text').click(function(){
+        var userText = $('#user-text').val();  
+        // Récupérer le jeton CSRF depuis les cookies
+        var csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url: "{% url 'send_text' %}",  
+            method: 'POST',
+            data: {'user_text': userText},
+            headers: {'X-CSRFToken': csrftoken}, // Inclure le jeton CSRF dans les en-têtes de la requête
+            success: function(response){
+                alert(response.message);
+            },
+            error: function(xhr, status, error){
+                alert('Une erreur s\'est produite lors de l\'envoi du texte.');
+            }
+        });
+    });
+});
+
+// Fonction pour récupérer le jeton CSRF depuis les cookies
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Vérifier si le cookie correspond au nom du jeton CSRF
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+    </script>
 
     </body>
 </html>

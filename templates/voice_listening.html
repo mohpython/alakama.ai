@@ -56,28 +56,31 @@ https://templatemo.com/tm-590-topic-listing
     </header>
 
     <section class="section-padding">
-        <div class="container">
-            <div class="row justify-content-center">
-
-                <div class="col-lg-8 col-12">
-                    <div class="custom-block bg-white shadow-lg mb-5">
-                        <div class="d-flex align-items-center">
-                            <div class="mx-auto">
-                                <h5 class="mb-2">Lecteur Audio</h5>
-                                <p class="mb-4">Cliquez sur le bouton ci-dessous pour écouter l'enregistrement vocal.</p>
-                                <div class="d-flex justify-content-center align-items-center">
-                                    <button class="btn custom-btn" id="play-recording" style="font-size: 45px;">
-                                        <i class="bi-play-fill"></i>
-                                    </button>
-                                </div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-12">
+                <div class="custom-block bg-white shadow-lg mb-5">
+                    <div class="d-flex align-items-center">
+                        <div class="mx-auto">
+                            <h5 class="mb-2">Lecteur Audio</h5>
+                            <div class="d-flex flex-column align-items-center">
+                                <p>Voici la phrase à écouter</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Nouvelle div pour placer l'icône de lecture -->
+                <div class="text-center mb-4">
+                    <button class="btn custom-btn" id="play-recording" style="font-size: 40px;">
+                        <i class="bi-play-fill"></i>
+                    </button>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
 
 </main>
 
@@ -162,6 +165,23 @@ https://templatemo.com/tm-590-topic-listing
         <script src="{% static 'js/jquery.sticky.js' %}"></script>
         <script src="{% static 'js/click-scroll.js' %}"></script>
         <script src="{% static 'js/custom.js' %}"></script>
+    
+    <!-- Ajouter le script pour la lecture audio -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#play-recording').click(function(){
+                $.ajax({
+                    url: "{% url 'play_audio' phrase.pk %}",
+                    success: function(response){
+                        var audioUrl = response.audio_url;
+                        var audio = new Audio(audioUrl);
+                        audio.play();
+                    }
+                });
+            });
+        });
+    </script>
 
     </body>
 </html>

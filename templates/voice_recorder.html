@@ -66,52 +66,12 @@ https://templatemo.com/tm-590-topic-listing
                                 <h5 class="mb-2">Enregistreur Vocal</h5>
                                 <p class="mb-4">Cliquez sur le bouton ci-dessous pour démarrer l'enregistrement vocal.</p>
                 <div class="d-flex justify-content-center align-items-center">
-    <button class="btn custom-btn" id="start-recording" style="font-size: 45px;">
-        <i class="bi-mic-fill"></i>
-    </button>
+   <button class="btn custom-btn" id="start-recording" style="font-size: 45px;">
+    <i class="bi-mic-fill" id="record-icon"></i>
+</button>
 </div>
 
-<script>
-document.getElementById('start-recording').addEventListener('click', function() {
-    // Code pour enregistrer le vocal
-    navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(function(stream) {
-        var mediaRecorder = new MediaRecorder(stream);
-        var chunks = [];
 
-        mediaRecorder.ondataavailable = function(e) {
-            chunks.push(e.data);
-        }
-
-        mediaRecorder.onstop = function(e) {
-            var blob = new Blob(chunks, { 'type' : 'audio/wav' });
-            var formData = new FormData();
-            formData.append('audio_file', blob, 'voice_recording.wav');
-
-            fetch('/save-recording/', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-
-        mediaRecorder.start();
-
-        setTimeout(function() {
-            mediaRecorder.stop();
-        }, 30000);
-    })
-    .catch(function(err) {
-        console.error('Error:', err);
-    });
-});
-</script>
 
                             </div>
                         </div>
@@ -204,6 +164,63 @@ document.getElementById('start-recording').addEventListener('click', function() 
         <script src="{% static 'js/jquery.sticky.js' %}"></script>
         <script src="{% static 'js/click-scroll.js' %}"></script>
         <script src="{% static 'js/custom.js' %}"></script>
+    
+    <script>
+       $(document).ready(function(){
+    let isRecording = false;
+    let mediaRecorder;
+    let chunks = [];
+
+    $('#start-recording').click(function(){
+        if (!isRecording) {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+
+                mediaRecorder.ondataavailable = function(e) {
+                    chunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = function(e) {
+                    isRecording = false;
+                    let blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+                    let formData = new FormData();
+                    formData.append('audio_file', blob);
+
+                    // Ajout du jeton CSRF à la requête AJAX
+                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                    $.ajax({
+                        url: "{% url 'voice_recorder' %}",
+                        method: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            alert(response.message);
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Une erreur s\'est produite lors de l\'envoi du fichier audio.');
+                        }
+                    });
+
+                    chunks = [];
+                };
+
+                isRecording = true;
+            })
+            .catch(function(err) {
+                console.error('Permission to access microphone was denied');
+            });
+        } else {
+            mediaRecorder.stop();
+        }
+    });
+});
+
+
+    </script>
 
     </body>
 </html>
